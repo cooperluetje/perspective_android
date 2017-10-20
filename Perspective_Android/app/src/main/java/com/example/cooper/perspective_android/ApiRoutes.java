@@ -6,24 +6,8 @@ package com.example.cooper.perspective_android;
 
 public class ApiRoutes {
 
-    private String homeUrl;
-    private String gravatarUrl;
-
-    public ApiRoutes()
-    {
-        this.homeUrl = "https://infinite-brushlands-36763.herokuapp.com";
-        this.gravatarUrl = "https://www.gravatar.com/avatar/";
-    }
-
-    public class Session
-    {
-        protected String api = "https://infinite-brushlands-36763.herokuapp.com/api/";
-        protected String login;
-
-        public Session()
-        {
-            login = api + "login/";
-        }
-    }
+    private static String homeUrl = "https://infinite-brushlands-36763.herokuapp.com";
+    private static String gravatarUrl = "https://www.gravatar.com/avatar/";
+    public static String loginUrl = homeUrl + "/api/login/";
 
 }

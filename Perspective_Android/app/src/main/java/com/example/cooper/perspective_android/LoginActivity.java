@@ -5,7 +5,10 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
@@ -32,6 +35,15 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         usernameText = (EditText)findViewById(R.id.usernameText);
         passwordText = (EditText)findViewById(R.id.passwordText);
+
+        final Button loginButton = (Button) findViewById(R.id.loginButton);
+
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new LongOperation().execute(ApiRoutes.loginUrl);
+            }
+        });
     }
 
     private class LongOperation extends AsyncTask<String, Void, Void> {
@@ -40,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
 
         private String username;
         private String password;
-        private String authToken;
+        private String authToken = "no";
         private int userID;
 
         private JSONObject loginJson;
@@ -74,6 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                 headers.put("Content-Type", "application/json");
 
                 authToken = Request.post(urls[0], headers, jsonParams);
+                Log.d("authToken", authToken);
                 //userID = Request.getCurrentUserID(username);
             } catch (FileNotFoundException exc) {
                 // Occurs if the service is unavailable for some reason
@@ -85,8 +98,9 @@ public class LoginActivity extends AppCompatActivity {
             return null;
         }
 
-        protected void onPostExecute(Void unused) {
-            
+        protected void onPostExecute(Void unused)
+        {
+            Dialog.dismiss();
         }
     }
 }

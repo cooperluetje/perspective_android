@@ -1,5 +1,7 @@
 package com.example.cooper.perspective_android;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -29,18 +31,17 @@ public class Request {
         for (Map.Entry<String, String> property : properties.entrySet()) {
             httpConn.setRequestProperty(property.getKey(), property.getValue());
         }
-
         sendData(postData);
 
         return response();
     }
 
     //Prepares data to be sent through an http connection
-    private static void sendData(String toSend) throws IOException {
+    private static void sendData(String postData) throws IOException {
         OutputStream connOutput = httpConn.getOutputStream();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connOutput, "UTF-8"));
 
-        writer.write(toSend);
+        writer.write(postData);
         writer.flush();
         writer.close();
 
