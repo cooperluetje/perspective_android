@@ -2,6 +2,7 @@ package com.example.cooper.perspective_android;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.EditText;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public EditText usernameText;
     public EditText passwordText;
+    public TextView errorText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         usernameText = (EditText)findViewById(R.id.usernameText);
         passwordText = (EditText)findViewById(R.id.passwordText);
+        errorText = (TextView)findViewById(R.id.errorText);
 
         final Button loginButton = (Button) findViewById(R.id.loginButton);
 
@@ -52,10 +56,10 @@ public class LoginActivity extends AppCompatActivity {
 
         private String username;
         private String password;
-        private String authToken = "no";
+        private String userInfo;
         private int userID;
 
-        private JSONObject loginJson;
+        private JSONObject userJson;
         private boolean loginSuccess = false;
         private boolean serviceFailure = false;
 
@@ -85,8 +89,7 @@ public class LoginActivity extends AppCompatActivity {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", "application/json");
 
-                authToken = Request.post(urls[0], headers, jsonParams);
-                Log.d("authToken", authToken);
+                userInfo = Request.post(urls[0], headers, jsonParams);
                 //userID = Request.getCurrentUserID(username);
             } catch (FileNotFoundException exc) {
                 // Occurs if the service is unavailable for some reason
@@ -101,6 +104,40 @@ public class LoginActivity extends AppCompatActivity {
         protected void onPostExecute(Void unused)
         {
             Dialog.dismiss();
+
+            SharedPreferences.Editor prefEditor = sharedPref.edit();
+
+            try
+            {
+                userJson = new JSONObject(userInfo);
+
+                // Checks whether the login is successful
+                if (userJson.getBoolean("success"))
+                {
+                    loginSuccess = true;
+
+                    JSONObject innerUser = userJson.getJSONObject("user");
+                    prefEditor.putInt("userID", innerUser.getInt("id"));
+                    prefEditor.putString("name", innerUser.getString("name"));
+                    prefEditor.putString("email", innerUser.getString("email"));
+                    prefEditor.putString("username", innerUser.getString("username"));
+                    prefEditor.apply();
+                }
+                else
+                {
+                    errorText.setText(userJson.getString("error"));
+                }
+            }
+            catch (JSONException jexc)
+            {
+                jexc.printStackTrace();
+            }
+
+            if (loginSuccess) {
+                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                startActivity(intent);
+                finish();
+            }
         }
     }
 }
