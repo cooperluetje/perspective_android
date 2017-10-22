@@ -18,7 +18,7 @@ public class HomeActivity extends AppCompatActivity {
         textView = (TextView)findViewById(R.id.textView);
 
         SharedPreferences sPref = getSharedPreferences("LoginActivity", Context.MODE_PRIVATE);
-        String userText = sPref.getString("name", null) + "\n" + sPref.getString("username", null) + "\n" + sPref.getString("email", null);
+        String userText = sPref.getString("name", null) + "\n" + sPref.getString("username", null) + "\n" + sPref.getString("auth_token", null);
         textView.setText(userText);
     }
 }

@@ -90,7 +90,6 @@ public class LoginActivity extends AppCompatActivity {
                 headers.put("Content-Type", "application/json");
 
                 userInfo = Request.post(urls[0], headers, jsonParams);
-                //userID = Request.getCurrentUserID(username);
             } catch (FileNotFoundException exc) {
                 // Occurs if the service is unavailable for some reason
                 serviceFailure = true;
@@ -103,8 +102,6 @@ public class LoginActivity extends AppCompatActivity {
 
         protected void onPostExecute(Void unused)
         {
-            Dialog.dismiss();
-
             SharedPreferences.Editor prefEditor = sharedPref.edit();
 
             try
@@ -121,6 +118,7 @@ public class LoginActivity extends AppCompatActivity {
                     prefEditor.putString("name", innerUser.getString("name"));
                     prefEditor.putString("email", innerUser.getString("email"));
                     prefEditor.putString("username", innerUser.getString("username"));
+                    prefEditor.putString("auth_token", innerUser.getString("remember_digest"));
                     prefEditor.apply();
                 }
                 else
@@ -134,8 +132,9 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             if (loginSuccess) {
-                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                Intent intent = new Intent(LoginActivity.this, NavigationActivity.class);
                 startActivity(intent);
+                Dialog.dismiss();
                 finish();
             }
         }

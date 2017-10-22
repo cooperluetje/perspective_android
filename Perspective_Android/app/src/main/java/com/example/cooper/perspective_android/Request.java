@@ -16,7 +16,8 @@ import java.util.Map;
  * Created by Cooper on 10/20/2017.
  */
 
-public class Request {
+public class Request
+{
 
     private static HttpURLConnection httpConn;
 
@@ -28,10 +29,26 @@ public class Request {
 
         httpConn.setRequestMethod("POST");
         httpConn.setDoOutput(true);
-        for (Map.Entry<String, String> property : properties.entrySet()) {
+        for (Map.Entry<String, String> property : properties.entrySet())
+        {
             httpConn.setRequestProperty(property.getKey(), property.getValue());
         }
         sendData(postData);
+
+        return response();
+    }
+
+    //Sends a get request
+    public static String get(String urlString, Map<String, String> properties) throws IOException
+    {
+        URL url = new URL(urlString);
+        httpConn = (HttpURLConnection) url.openConnection();
+
+        httpConn.setRequestMethod("GET");
+        for (Map.Entry<String, String> property : properties.entrySet())
+        {
+            httpConn.setRequestProperty(property.getKey(), property.getValue());
+        }
 
         return response();
     }
@@ -59,7 +76,8 @@ public class Request {
             responseString.append(line);
         }
         reader.close();
-
+        Log.d("posts", "pre execute");
+        //Log.d("posts", responseString.toString());
         return responseString.toString();
     }
 
