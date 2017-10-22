@@ -76,6 +76,7 @@ public class Request
             responseString.append(line);
         }
         reader.close();
+        httpConn.disconnect();
         return responseString.toString();
     }
 

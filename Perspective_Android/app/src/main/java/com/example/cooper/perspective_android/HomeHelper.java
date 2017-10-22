@@ -4,9 +4,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TableLayout;
@@ -20,8 +24,10 @@ import org.json.JSONObject;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Exchanger;
 
 /**
  * Created by Cooper on 10/21/2017.
@@ -31,7 +37,7 @@ public class HomeHelper
 {
     String auth_token;
     Post[] posts;
-    boolean feedReturned = false;
+    ArrayList<Drawable> images;
 
     public HomeHelper(String token)
     {
@@ -40,17 +46,14 @@ public class HomeHelper
 
     public void getFeed()
     {
-        new updateLocationAsync().execute(ApiRoutes.updateLocation);
+        //new updateLocationAsync().execute(ApiRoutes.updateLocation);
         new getFeedAsync().execute(ApiRoutes.getUserFeedUrl);
     }
 
     public TableLayout setTableLayout(Context context, TableLayout table)
     {
-        System.out.println(feedReturned);
-        if (posts != null && feedReturned)
+        if (posts != null)
         {
-            //String[] posts = {"1", "2", "3", "4", "5"};
-            TextView[] textArray = new TextView[posts.length];
             ImageView[] imageArray = new ImageView[posts.length];
             TableRow[] rows = new TableRow[posts.length];
 
@@ -60,16 +63,10 @@ public class HomeHelper
                 rows[i].setBackgroundColor(Color.GRAY);
                 rows[i].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
-                textArray[i] = new TextView(context);
-                textArray[i].setId(i + 111);
-                textArray[i].setText(posts[i].picture_url);
-                textArray[i].setTextColor(Color.WHITE);
-                textArray[i].setPadding(5, 5, 5, 5);
-                rows[i].addView(textArray[i]);
-
+                //Get pictures
                 imageArray[i] = new ImageView(context);
                 imageArray[i].setId(i + 222);
-                imageArray[i].setImageDrawable(posts[i].image);
+                new downloadImageTask((ImageView) imageArray[i]).execute(posts[i].picture_url);
                 rows[i].addView(imageArray[i]);
 
                 table.addView(rows[i], new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
@@ -78,8 +75,37 @@ public class HomeHelper
         return table;
     }
 
-    private class updateLocationAsync extends AsyncTask<String, Void, Void> {
+    private class downloadImageTask extends AsyncTask<String, Void, Bitmap>
+    {
+        ImageView bmImage;
 
+        public downloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urlString = urls[0];
+            Bitmap image = null;
+            try {
+                InputStream in = new java.net.URL(urlString).openStream();
+                image = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return image;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+            bmImage.getLayoutParams().height = Resources.getSystem().getDisplayMetrics().widthPixels;
+            bmImage.getLayoutParams().width = Resources.getSystem().getDisplayMetrics().widthPixels;
+            bmImage.setRotation(90);
+        }
+    }
+
+    private class updateLocationAsync extends AsyncTask<String, Void, Void>
+    {
         private String latitude = "39.564280";
         private String longitude = "-77.134491";
 
@@ -160,20 +186,16 @@ public class HomeHelper
 
                 JSONArray feedJson = postsJson.getJSONArray("feed");
                 posts = new Post[postsJson.length()];
+                images = new ArrayList<Drawable>();
                 for(int i = 0; i < posts.length; i++)
                 {
                     JSONObject innerJson = feedJson.getJSONObject(i);
                     JSONObject pictureJson = innerJson.getJSONObject("picture");
                     String pictureUrl = pictureJson.getString("url");
 
-                    //Get picture from url
-                    InputStream is = (InputStream) new URL(pictureUrl).getContent();
-                    Drawable image = Drawable.createFromStream(is, "picture" + i);
-
                     posts[i] = new Post(innerJson.getInt("id"), innerJson.getString("content"), innerJson.getInt("user_id"),
-                            innerJson.getString("created_at"), innerJson.getString("updated_at"), pictureUrl, image);
+                            innerJson.getString("created_at"), innerJson.getString("updated_at"), pictureUrl, null);
                 }
-                feedReturned = true;
             }
             catch (JSONException jexc)
             {
