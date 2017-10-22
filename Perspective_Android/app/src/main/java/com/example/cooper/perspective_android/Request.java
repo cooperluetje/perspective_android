@@ -76,8 +76,6 @@ public class Request
             responseString.append(line);
         }
         reader.close();
-        Log.d("posts", "pre execute");
-        //Log.d("posts", responseString.toString());
         return responseString.toString();
     }
 

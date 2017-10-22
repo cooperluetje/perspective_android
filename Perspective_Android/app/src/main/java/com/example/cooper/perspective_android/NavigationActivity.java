@@ -2,6 +2,7 @@ package com.example.cooper.perspective_android;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -10,12 +11,16 @@ import android.view.MenuItem;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import java.io.InputStream;
+import java.net.URL;
+
 public class NavigationActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
     private TableLayout feedTable;
 
     private HomeHelper homeHelper;
+    private Post[] posts;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
