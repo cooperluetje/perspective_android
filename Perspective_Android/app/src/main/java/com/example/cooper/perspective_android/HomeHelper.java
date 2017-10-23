@@ -10,8 +10,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -24,6 +29,7 @@ import org.json.JSONObject;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,25 +60,72 @@ public class HomeHelper
     {
         if (posts != null)
         {
+            TextView[] userTextArray = new TextView[posts.length];
+            ImageView[] userImageArray = new ImageView[posts.length];
             ImageView[] imageArray = new ImageView[posts.length];
-            TableRow[] rows = new TableRow[posts.length];
-
+            TableRow[] userRows = new TableRow[posts.length];
+            TableRow[] imageRows = new TableRow[posts.length];
+            System.out.println(posts.length);
             for (int i = 0; i < posts.length; i++) {
-                rows[i] = new TableRow(context);
-                rows[i].setId(i + 1);
-                rows[i].setBackgroundColor(Color.GRAY);
-                rows[i].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+                //Create userInfo rows
+                userRows[i] = new TableRow(context);
+                userRows[i].setId(i + 1);
+                userRows[i].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
 
-                //Get pictures
+                //Create imageInfo rows
+                imageRows[i] = new TableRow(context);
+                imageRows[i].setId(i + 1);
+                imageRows[i].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+
+                //Add user image
+                String hash = md5("koopaluigi@hotmail.com");
+                String gravatarUrl = "http://www.gravatar.com/avatar/" + hash + "?s=204&d=404";
+                userImageArray[i] = new ImageView(context);
+                userImageArray[i].setId(i + 222);
+                new downloadGravatarImageTask((ImageView) userImageArray[i]).execute(gravatarUrl);
+                userRows[i].addView(userImageArray[i]);
+
+
+                userTextArray[i] = new TextView(context);
+                userTextArray[i].setId(i + 111);
+                userTextArray[i].setText("koopaluigi");
+                userRows[i].addView(userTextArray[i]);
+
+                table.addView(userRows[i], new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+
+                //Add post image
                 imageArray[i] = new ImageView(context);
                 imageArray[i].setId(i + 222);
                 new downloadImageTask((ImageView) imageArray[i]).execute(posts[i].picture_url);
-                rows[i].addView(imageArray[i]);
+                imageRows[i].addView(imageArray[i]);
 
-                table.addView(rows[i], new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+                table.addView(imageRows[i], new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
             }
         }
         return table;
+    }
+
+    private void setMargins (View view, int left, int top, int right, int bottom) {
+        if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+            p.setMargins(left, top, right, bottom);
+            view.requestLayout();
+        }
+    }
+
+    public static final String md5(final String toEncrypt) {
+        try {
+            final MessageDigest digest = MessageDigest.getInstance("md5");
+            digest.update(toEncrypt.getBytes());
+            final byte[] bytes = digest.digest();
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++) {
+                sb.append(String.format("%02X", bytes[i]));
+            }
+            return sb.toString().toLowerCase();
+        } catch (Exception exc) {
+            return "";
+        }
     }
 
     private class downloadImageTask extends AsyncTask<String, Void, Bitmap>
@@ -103,6 +156,36 @@ public class HomeHelper
             bmImage.setRotation(90);
         }
     }
+
+    private class downloadGravatarImageTask extends AsyncTask<String, Void, Bitmap>
+    {
+        ImageView bmImage;
+
+        public downloadGravatarImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urlString = urls[0];
+            Bitmap image = null;
+            try {
+                InputStream in = new java.net.URL(urlString).openStream();
+                image = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return image;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+            bmImage.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT,1.0f));
+            bmImage.getLayoutParams().height = 100;
+            bmImage.getLayoutParams().width = 100;
+        }
+    }
+
 
     private class updateLocationAsync extends AsyncTask<String, Void, Void>
     {
@@ -185,7 +268,7 @@ public class HomeHelper
                 postsJson = new JSONObject(microposts);
 
                 JSONArray feedJson = postsJson.getJSONArray("feed");
-                posts = new Post[postsJson.length()];
+                posts = new Post[feedJson.length()];
                 images = new ArrayList<Drawable>();
                 for(int i = 0; i < posts.length; i++)
                 {

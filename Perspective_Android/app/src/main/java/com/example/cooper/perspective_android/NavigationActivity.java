@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
@@ -30,16 +31,19 @@ public class NavigationActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     mTextMessage.setText(R.string.title_home);
+                    mTextMessage.setVisibility(View.INVISIBLE);
                     feedTable.removeAllViews();
                     homeHelper.getFeed();
                     feedTable = homeHelper.setTableLayout(getApplicationContext(), feedTable);
                     return true;
                 case R.id.navigation_camera:
                     mTextMessage.setText(R.string.title_camera);
+                    mTextMessage.setVisibility(View.VISIBLE);
                     feedTable.removeAllViews();
                     return true;
                 case R.id.navigation_more:
                     mTextMessage.setText(R.string.title_more);
+                    mTextMessage.setVisibility(View.VISIBLE);
                     feedTable.removeAllViews();
                     return true;
             }
