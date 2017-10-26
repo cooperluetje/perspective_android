@@ -71,6 +71,7 @@ public class HomeHelper
                 userRows[i] = new TableRow(context);
                 userRows[i].setId(i + 1);
                 userRows[i].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+                userRows[i].setGravity(Gravity.CENTER_VERTICAL);
 
                 //Create imageInfo rows
                 imageRows[i] = new TableRow(context);
@@ -89,6 +90,7 @@ public class HomeHelper
                 userTextArray[i] = new TextView(context);
                 userTextArray[i].setId(i + 111);
                 userTextArray[i].setText("koopaluigi");
+                userTextArray[i].setPadding(10,0,0,0);
                 userRows[i].addView(userTextArray[i]);
 
                 table.addView(userRows[i], new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
@@ -151,9 +153,13 @@ public class HomeHelper
 
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
-            bmImage.getLayoutParams().height = Resources.getSystem().getDisplayMetrics().widthPixels;
-            bmImage.getLayoutParams().width = Resources.getSystem().getDisplayMetrics().widthPixels;
             bmImage.setRotation(90);
+            TableRow.LayoutParams params = (TableRow.LayoutParams)bmImage.getLayoutParams();
+            params.span = 2;
+            params.weight = 1;
+            params.height = Resources.getSystem().getDisplayMetrics().widthPixels;
+            params.width = Resources.getSystem().getDisplayMetrics().widthPixels;
+            bmImage.setLayoutParams(params);
         }
     }
 
@@ -180,9 +186,9 @@ public class HomeHelper
 
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
-            bmImage.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT,1.0f));
-            bmImage.getLayoutParams().height = 100;
-            bmImage.getLayoutParams().width = 100;
+            //bmImage.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT,1.0f));
+            bmImage.getLayoutParams().height = 125;
+            bmImage.getLayoutParams().width = 125;
         }
     }
 
