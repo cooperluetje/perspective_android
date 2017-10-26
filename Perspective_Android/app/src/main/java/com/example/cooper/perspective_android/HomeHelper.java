@@ -44,14 +44,16 @@ public class HomeHelper
     String auth_token;
     Post[] posts;
     ArrayList<Drawable> images;
+    NavigationActivity navAct;
 
     public HomeHelper(String token)
     {
         this.auth_token = token;
     }
 
-    public void getFeed()
+    public void getFeed(NavigationActivity navAct)
     {
+        this.navAct = navAct;
         //new updateLocationAsync().execute(ApiRoutes.updateLocation);
         new getFeedAsync().execute(ApiRoutes.getUserFeedUrl);
     }
@@ -293,6 +295,11 @@ public class HomeHelper
             catch (Exception e)
             {
 
+            }
+            //For initial loading of table
+            if (navAct != null)
+            {
+                navAct.feedTable = setTableLayout(navAct.getApplicationContext(), navAct.feedTable);
             }
         }
     }

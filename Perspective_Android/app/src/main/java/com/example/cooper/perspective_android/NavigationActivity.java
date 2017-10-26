@@ -18,7 +18,7 @@ import java.net.URL;
 public class NavigationActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
-    private TableLayout feedTable;
+    public TableLayout feedTable;
 
     private HomeHelper homeHelper;
     private Post[] posts;
@@ -33,7 +33,7 @@ public class NavigationActivity extends AppCompatActivity {
                     mTextMessage.setText(R.string.title_home);
                     mTextMessage.setVisibility(View.INVISIBLE);
                     feedTable.removeAllViews();
-                    homeHelper.getFeed();
+                    homeHelper.getFeed(null);
                     feedTable = homeHelper.setTableLayout(getApplicationContext(), feedTable);
                     return true;
                 case R.id.navigation_camera:
@@ -61,9 +61,9 @@ public class NavigationActivity extends AppCompatActivity {
         homeHelper = new HomeHelper(sPref.getString("auth_token", null));
 
         mTextMessage = (TextView) findViewById(R.id.message);
+        mTextMessage.setVisibility(View.INVISIBLE);
         feedTable = (TableLayout) findViewById(R.id.feedTable);
-        homeHelper.getFeed();
-        feedTable = homeHelper.setTableLayout(getApplicationContext(), feedTable);
+        homeHelper.getFeed(this);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
